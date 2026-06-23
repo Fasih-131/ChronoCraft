@@ -1,13 +1,17 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 
 export default function JSONManifest({ config }) {
+  const navigate = useNavigate();
+
   const handleSubmit = () => {
     if (!config.case || !config.dial || !config.crystal) {
       alert("Please select all components before submitting.");
       return;
     }
-    console.log("Submitting Build Payload:", config);
-    alert("Build submitted successfully! Payload logged to console.");
+    
+    // Navigate to checkout and pass the config in route state
+    navigate('/checkout', { state: { config } });
   };
 
   return (
