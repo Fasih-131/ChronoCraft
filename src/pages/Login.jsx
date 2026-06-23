@@ -10,9 +10,20 @@ export default function Login() {
   const { signIn } = useAuth();
   const navigate = useNavigate();
 
+  const validateEmail = (email) => {
+    const emailRegex = /^(?!\d+@)[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    return emailRegex.test(email);
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
+
+    if (!validateEmail(email)) {
+      setError("Invalid email format. Email cannot consist of only numbers before the @ symbol.");
+      return;
+    }
+
     setLoading(true);
 
     const { error } = await signIn(email, password);
