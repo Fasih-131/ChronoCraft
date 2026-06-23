@@ -11,24 +11,26 @@ export default function Login() {
   const navigate = useNavigate();
 
   const validateEmail = (email) => {
-    const emailRegex = /^(?!\d+@)[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-    return emailRegex.test(email);
+    const emailRegex = /^(?!\d+@)[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$/;
+    return emailRegex.test(email.trim());
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
 
-    if (!validateEmail(email)) {
+    const trimmedEmail = email.trim();
+    if (!validateEmail(trimmedEmail)) {
       setError("Invalid email format. Email cannot consist of only numbers before the @ symbol.");
       return;
     }
 
     setLoading(true);
 
-    const { error } = await signIn(email, password);
+    const { error } = await signIn(trimmedEmail, password);
 
     if (error) {
+      console.error("Supabase Login Error:", error);
       setError(error.message);
       setLoading(false);
     } else {

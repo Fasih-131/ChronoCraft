@@ -17,14 +17,13 @@ export default function Signup() {
   // Custom Validations
   const validateEmail = (email) => {
     // Regex: prevents purely numerical strings before the @ symbol
-    const emailRegex = /^(?!\d+@)[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-    return emailRegex.test(email);
+    const emailRegex = /^(?!\d+@)[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$/;
+    return emailRegex.test(email.trim());
   };
 
   const validatePassword = (pwd) => {
-    // Regex: Min 8 chars, 1 uppercase, 1 lowercase, 1 number, 1 special char
-    const pwdRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&#])[A-Za-z\d@$!%*?&#]{8,}$/;
-    return pwdRegex.test(pwd);
+    // Regex: Min 6 chars (standard supabase minimum is 6)
+    return pwd.length >= 6;
   };
 
   // Evaluate Password Strength in Real-Time
@@ -39,7 +38,7 @@ export default function Signup() {
     if (/[A-Z]/.test(password)) score += 1;
     if (/[a-z]/.test(password)) score += 1;
     if (/\d/.test(password)) score += 1;
-    if (/[@$!%*?&#]/.test(password)) score += 1;
+    if (/[^A-Za-z0-9]/.test(password)) score += 1;
 
     if (score <= 2) {
       setStrength({ score, label: 'Weak', color: 'bg-red-500' });
@@ -55,21 +54,23 @@ export default function Signup() {
     setError('');
 
     // Pre-flight validation
-    if (!validateEmail(email)) {
+    const trimmedEmail = email.trim();
+    if (!validateEmail(trimmedEmail)) {
       setError("Invalid email format. Email cannot consist of only numbers before the @ symbol.");
       return;
     }
 
     if (!validatePassword(password)) {
-      setError("Password must be at least 8 characters and include an uppercase letter, lowercase letter, number, and special character.");
+      setError("Password must be at least 6 characters.");
       return;
     }
 
     setLoading(true);
 
-    const { error: signUpError } = await signUp(email, password);
+    const { error: signUpError } = await signUp(trimmedEmail, password);
 
     if (signUpError) {
+      console.error("Supabase Signup Error:", signUpError);
       setError(signUpError.message);
       setLoading(false);
     } else {
